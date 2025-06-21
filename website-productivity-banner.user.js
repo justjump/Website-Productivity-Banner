@@ -17,7 +17,16 @@
 
 (function() {
     'use strict';
-    
+
+    // 活动时间跟踪变量
+    let activityTracker = {
+        startTime: Date.now(),
+        lastActivityTime: Date.now(),
+        totalActiveTime: 0,
+        isPageVisible: true,
+        updateInterval: null
+    };
+
     // 网站分类数据库
     const websiteCategories = {
         beneficial: [
@@ -68,6 +77,94 @@
         ]
     };
     
+    // 活动时间跟踪函数
+    function initActivityTracker() {
+        // 记录用户活动
+        function recordActivity() {
+            activityTracker.lastActivityTime = Date.now();
+        }
+
+        // 监听用户活动事件
+        const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+        activityEvents.forEach(event => {
+            document.addEventListener(event, recordActivity, true);
+        });
+
+        // 监听页面可见性变化
+        document.addEventListener('visibilitychange', function() {
+            activityTracker.isPageVisible = !document.hidden;
+            if (activityTracker.isPageVisible) {
+                activityTracker.lastActivityTime = Date.now();
+            }
+        });
+
+        // 开始更新活动时间显示
+        startActivityTimeUpdate();
+    }
+
+    // 计算活动时间
+    function calculateActiveTime() {
+        const now = Date.now();
+        const timeSinceLastActivity = now - activityTracker.lastActivityTime;
+
+        // 如果页面不可见或超过30秒没有活动，不计算时间
+        if (!activityTracker.isPageVisible || timeSinceLastActivity > 30000) {
+            return activityTracker.totalActiveTime;
+        }
+
+        return activityTracker.totalActiveTime + timeSinceLastActivity;
+    }
+
+    // 格式化时间显示
+    function formatTime(milliseconds) {
+        const seconds = Math.floor(milliseconds / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+
+        if (hours > 0) {
+            return `${hours}小时${minutes % 60}分钟`;
+        } else if (minutes > 0) {
+            return `${minutes}分钟${seconds % 60}秒`;
+        } else {
+            return `${seconds}秒`;
+        }
+    }
+
+    // 更新活动时间显示
+    function updateActivityTimeDisplay() {
+        const timeDisplay = document.getElementById('activity-time');
+        if (timeDisplay) {
+            const activeTime = calculateActiveTime();
+            timeDisplay.textContent = `活动时间: ${formatTime(activeTime)}`;
+        }
+    }
+
+    // 开始活动时间更新
+    function startActivityTimeUpdate() {
+        if (activityTracker.updateInterval) {
+            clearInterval(activityTracker.updateInterval);
+        }
+
+        activityTracker.updateInterval = setInterval(() => {
+            updateActivityTimeDisplay();
+            // 每5秒更新一次总活动时间
+            const now = Date.now();
+            const timeSinceLastActivity = now - activityTracker.lastActivityTime;
+            if (activityTracker.isPageVisible && timeSinceLastActivity <= 30000) {
+                activityTracker.totalActiveTime = calculateActiveTime();
+                activityTracker.lastActivityTime = now;
+            }
+        }, 1000);
+    }
+
+    // 停止活动时间更新
+    function stopActivityTimeUpdate() {
+        if (activityTracker.updateInterval) {
+            clearInterval(activityTracker.updateInterval);
+            activityTracker.updateInterval = null;
+        }
+    }
+
     // 获取当前网站域名
     function getCurrentDomain() {
         return window.location.hostname.toLowerCase();
@@ -140,6 +237,29 @@
                 transition: transform 0.3s ease-in-out;
                 border-bottom: 2px solid rgba(255,255,255,0.2);
             }
+
+            #productivity-banner .banner-content {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                position: relative;
+                padding: 0 60px;
+            }
+
+            #productivity-banner .banner-text {
+                text-align: center;
+                flex: 1;
+            }
+
+            #productivity-banner .time-display {
+                font-size: 12px;
+                opacity: 0.9;
+                margin-left: 10px;
+                background: rgba(255,255,255,0.1);
+                padding: 2px 8px;
+                border-radius: 10px;
+            }
             
             #productivity-banner.show {
                 transform: translateY(0);
@@ -148,6 +268,8 @@
             #productivity-banner .close-btn {
                 position: absolute;
                 right: 15px;
+                top: 50%;
+                transform: translateY(-50%);
                 background: rgba(255, 255, 255, 0.2);
                 border: 1px solid rgba(255, 255, 255, 0.3);
                 border-radius: 50%;
@@ -191,7 +313,12 @@
         banner.style.color = config.textColor;
 
         banner.innerHTML = `
-            <span>${config.text}</span>
+            <div class="banner-content">
+                <div class="banner-text">
+                    ${config.text}
+                    <span class="time-display" id="activity-time">活动时间: 0秒</span>
+                </div>
+            </div>
             <button class="close-btn" title="关闭横幅" aria-label="关闭横幅">×</button>
         `;
 
@@ -245,6 +372,9 @@
     function hideBanner(userClosed = false) {
         const banner = document.getElementById('productivity-banner');
         if (banner) {
+            // 停止活动时间更新
+            stopActivityTimeUpdate();
+
             // 如果是用户主动关闭，记录这个行为
             if (userClosed) {
                 recordBannerClosed();
@@ -311,6 +441,8 @@
             // 只对有益和有害网站显示横幅，中性网站不显示
             if (category !== 'neutral') {
                 showBanner(category);
+                // 初始化活动时间跟踪
+                initActivityTracker();
             }
 
             // 调试信息（可在控制台查看）
