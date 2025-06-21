@@ -180,6 +180,13 @@
     
     // 分类网站
     function categorizeWebsite(domain) {
+        // 首先检查用户自定义分类
+        const customCategory = getUserCustomCategory(domain);
+        if (customCategory) {
+            return customCategory;
+        }
+
+        // 然后检查预设分类
         if (matchesDomain(domain, websiteCategories.beneficial)) {
             return 'beneficial';
         } else if (matchesDomain(domain, websiteCategories.harmful)) {
@@ -189,29 +196,46 @@
         }
     }
     
+    // 获取用户自定义分类
+    function getUserCustomCategory(domain) {
+        const customCategories = JSON.parse(localStorage.getItem('productivity-banner-custom-categories') || '{}');
+        return customCategories[domain] || null;
+    }
+
+    // 保存用户自定义分类
+    function saveUserCustomCategory(domain, category) {
+        const customCategories = JSON.parse(localStorage.getItem('productivity-banner-custom-categories') || '{}');
+        customCategories[domain] = category;
+        localStorage.setItem('productivity-banner-custom-categories', JSON.stringify(customCategories));
+    }
+
     // 获取横幅配置
-    function getBannerConfig(category) {
+    function getBannerConfig(category, domain = null) {
         const configs = {
             beneficial: {
                 text: '✅ 有益网站 - 这个网站有助于实现赚钱目标！',
                 backgroundColor: '#4CAF50',
                 textColor: '#ffffff',
-                icon: '✅'
+                icon: '✅',
+                showTime: true
             },
             harmful: {
                 text: '⚠️ 有害网站 - 这个网站可能浪费您的时间！',
                 backgroundColor: '#F44336',
                 textColor: '#ffffff',
-                icon: '⚠️'
+                icon: '⚠️',
+                showTime: true
             },
             neutral: {
-                text: 'ℹ️ 中性网站 - 请合理使用时间',
-                backgroundColor: '#2196F3',
+                text: `❓ 未分类网站 - 请选择 "${domain}" 对您的赚钱目标是：`,
+                backgroundColor: '#FF9800',
                 textColor: '#ffffff',
-                icon: 'ℹ️'
+                icon: '❓',
+                showTime: false,
+                showChoices: true
             }
         };
-        
+
         return configs[category];
     }
     
@@ -260,6 +284,45 @@
                 padding: 2px 8px;
                 border-radius: 10px;
             }
+
+            #productivity-banner .choice-buttons {
+                display: flex;
+                gap: 10px;
+                margin-top: 8px;
+            }
+
+            #productivity-banner .choice-btn {
+                background: rgba(255,255,255,0.2);
+                border: 1px solid rgba(255,255,255,0.3);
+                border-radius: 15px;
+                color: inherit;
+                font-size: 12px;
+                font-weight: 500;
+                cursor: pointer;
+                padding: 6px 12px;
+                transition: all 0.2s ease;
+                min-width: 60px;
+            }
+
+            #productivity-banner .choice-btn:hover {
+                background: rgba(255,255,255,0.3);
+                border-color: rgba(255,255,255,0.5);
+                transform: translateY(-1px);
+            }
+
+            #productivity-banner .choice-btn:active {
+                transform: translateY(0);
+            }
+
+            #productivity-banner .choice-btn.beneficial {
+                background: rgba(76, 175, 80, 0.8);
+                border-color: rgba(76, 175, 80, 1);
+            }
+
+            #productivity-banner .choice-btn.harmful {
+                background: rgba(244, 67, 54, 0.8);
+                border-color: rgba(244, 67, 54, 1);
+            }
             
             #productivity-banner.show {
                 transform: translateY(0);
@@ -306,17 +369,33 @@
     }
 
     // 创建横幅元素
-    function createBanner(config) {
+    function createBanner(config, domain = null) {
         const banner = document.createElement('div');
         banner.id = 'productivity-banner';
         banner.style.backgroundColor = config.backgroundColor;
         banner.style.color = config.textColor;
 
+        let timeDisplay = '';
+        if (config.showTime) {
+            timeDisplay = '<span class="time-display" id="activity-time">活动时间: 0秒</span>';
+        }
+
+        let choiceButtons = '';
+        if (config.showChoices) {
+            choiceButtons = `
+                <div class="choice-buttons">
+                    <button class="choice-btn beneficial" data-choice="beneficial">✅ 有益</button>
+                    <button class="choice-btn harmful" data-choice="harmful">⚠️ 有害</button>
+                </div>
+            `;
+        }
+
         banner.innerHTML = `
             <div class="banner-content">
                 <div class="banner-text">
                     ${config.text}
-                    <span class="time-display" id="activity-time">活动时间: 0秒</span>
+                    ${timeDisplay}
+                    ${choiceButtons}
                 </div>
             </div>
             <button class="close-btn" title="关闭横幅" aria-label="关闭横幅">×</button>
@@ -325,21 +404,46 @@
         return banner;
     }
 
+    // 处理用户选择
+    function handleUserChoice(domain, choice) {
+        // 保存用户选择
+        saveUserCustomCategory(domain, choice);
+
+        // 隐藏当前横幅
+        hideBanner();
+
+        // 显示新的横幅（根据用户选择）
+        setTimeout(() => {
+            showBanner(choice, domain);
+        }, 400);
+    }
+
     // 显示横幅
-    function showBanner(category) {
+    function showBanner(category, domain = null) {
         // 检查是否已经显示过横幅
         if (document.getElementById('productivity-banner')) {
             return;
         }
 
-        const config = getBannerConfig(category);
-        const banner = createBanner(config);
+        const currentDomain = domain || getCurrentDomain();
+        const config = getBannerConfig(category, currentDomain);
+        const banner = createBanner(config, currentDomain);
 
         // 添加关闭按钮事件
         const closeBtn = banner.querySelector('.close-btn');
         closeBtn.addEventListener('click', function(e) {
             e.stopPropagation();
             hideBanner(true); // 标记为用户主动关闭
+        });
+
+        // 添加选择按钮事件（如果存在）
+        const choiceButtons = banner.querySelectorAll('.choice-btn');
+        choiceButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const choice = this.getAttribute('data-choice');
+                handleUserChoice(currentDomain, choice);
+            });
         });
 
         // 添加到页面
@@ -438,10 +542,11 @@
             const domain = getCurrentDomain();
             const category = categorizeWebsite(domain);
 
-            // 只对有益和有害网站显示横幅，中性网站不显示
+            // 显示横幅（所有网站都显示）
+            showBanner(category, domain);
+
+            // 只对有益和有害网站初始化活动时间跟踪
             if (category !== 'neutral') {
-                showBanner(category);
-                // 初始化活动时间跟踪
                 initActivityTracker();
             }
 
