@@ -392,12 +392,8 @@
             
             /* 为页面内容添加顶部边距，避免被横幅遮挡 */
             body.has-productivity-banner {
-                margin-top: 60px !important;
-            }
-
-            /* 如果body有固定定位的子元素，也需要调整 */
-            body.has-productivity-banner > *:first-child {
-                margin-top: 0 !important;
+                padding-top: 60px !important;
+                box-sizing: border-box;
             }
         `;
         
@@ -514,36 +510,14 @@
 
     // 调整页面布局，避免内容被横幅遮挡
     function adjustPageLayout() {
-        // 检查页面顶部是否有固定定位的元素
-        const topElements = document.querySelectorAll('*');
-        topElements.forEach(element => {
-            const style = window.getComputedStyle(element);
-            if (style.position === 'fixed' &&
-                (style.top === '0px' || style.top === '0')) {
-                // 如果元素在顶部且没有被我们的横幅遮挡标记
-                if (!element.hasAttribute('data-banner-adjusted')) {
-                    element.style.top = '60px';
-                    element.setAttribute('data-banner-adjusted', 'true');
-                }
-            }
-        });
-
-        // 确保html和body没有负的margin或padding
-        document.documentElement.style.marginTop = '0';
-        document.body.style.marginTop = '60px';
+        // 简单粗暴：给body添加padding-top，横幅保持在top:0
+        document.body.style.paddingTop = '60px';
     }
 
     // 恢复页面布局
     function restorePageLayout() {
-        // 恢复被调整的固定定位元素
-        const adjustedElements = document.querySelectorAll('[data-banner-adjusted]');
-        adjustedElements.forEach(element => {
-            element.style.top = '0px';
-            element.removeAttribute('data-banner-adjusted');
-        });
-
-        // 恢复body的margin
-        document.body.style.marginTop = '';
+        // 恢复body的padding
+        document.body.style.paddingTop = '';
     }
 
     // 平滑滚动到页面顶部
