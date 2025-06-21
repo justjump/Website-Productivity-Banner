@@ -253,13 +253,13 @@
                 top: 0;
                 left: 0;
                 right: 0;
-                height: 50px;
+                height: 60px;
                 z-index: 9999;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                font-size: 14px;
+                font-size: 16px;
                 font-weight: 600;
                 box-shadow: 0 2px 15px rgba(0,0,0,0.15);
                 transform: translateY(-100%);
@@ -286,11 +286,11 @@
             }
 
             #productivity-banner .time-display {
-                font-size: 12px;
+                font-size: 14px;
                 opacity: 0.9;
                 background: rgba(255,255,255,0.1);
-                padding: 2px 8px;
-                border-radius: 10px;
+                padding: 3px 10px;
+                border-radius: 12px;
             }
 
             #productivity-banner .action-buttons {
@@ -308,12 +308,12 @@
                 border: 1px solid rgba(255,255,255,0.3);
                 border-radius: 50%;
                 color: inherit;
-                font-size: 14px;
+                font-size: 16px;
                 font-weight: bold;
                 cursor: pointer;
                 padding: 0;
-                width: 24px;
-                height: 24px;
+                width: 28px;
+                height: 28px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -368,12 +368,12 @@
                 border: 1px solid rgba(255, 255, 255, 0.3);
                 border-radius: 50%;
                 color: inherit;
-                font-size: 16px;
+                font-size: 18px;
                 font-weight: bold;
                 cursor: pointer;
                 padding: 0;
-                width: 24px;
-                height: 24px;
+                width: 28px;
+                height: 28px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -392,7 +392,12 @@
             
             /* 为页面内容添加顶部边距，避免被横幅遮挡 */
             body.has-productivity-banner {
-                margin-top: 50px !important;
+                margin-top: 60px !important;
+            }
+
+            /* 如果body有固定定位的子元素，也需要调整 */
+            body.has-productivity-banner > *:first-child {
+                margin-top: 0 !important;
             }
         `;
         
@@ -496,12 +501,49 @@
         document.body.appendChild(banner);
         document.body.classList.add('has-productivity-banner');
 
+        // 调整页面布局，避免内容被遮挡
+        adjustPageLayout();
+
         // 延迟显示动画
         setTimeout(() => {
             banner.classList.add('show');
             // 滚动到页面顶部，确保用户能看到横幅
             scrollToTop();
         }, 100);
+    }
+
+    // 调整页面布局，避免内容被横幅遮挡
+    function adjustPageLayout() {
+        // 检查页面顶部是否有固定定位的元素
+        const topElements = document.querySelectorAll('*');
+        topElements.forEach(element => {
+            const style = window.getComputedStyle(element);
+            if (style.position === 'fixed' &&
+                (style.top === '0px' || style.top === '0')) {
+                // 如果元素在顶部且没有被我们的横幅遮挡标记
+                if (!element.hasAttribute('data-banner-adjusted')) {
+                    element.style.top = '60px';
+                    element.setAttribute('data-banner-adjusted', 'true');
+                }
+            }
+        });
+
+        // 确保html和body没有负的margin或padding
+        document.documentElement.style.marginTop = '0';
+        document.body.style.marginTop = '60px';
+    }
+
+    // 恢复页面布局
+    function restorePageLayout() {
+        // 恢复被调整的固定定位元素
+        const adjustedElements = document.querySelectorAll('[data-banner-adjusted]');
+        adjustedElements.forEach(element => {
+            element.style.top = '0px';
+            element.removeAttribute('data-banner-adjusted');
+        });
+
+        // 恢复body的margin
+        document.body.style.marginTop = '';
     }
 
     // 平滑滚动到页面顶部
@@ -536,6 +578,8 @@
                     banner.parentNode.removeChild(banner);
                 }
                 document.body.classList.remove('has-productivity-banner');
+                // 恢复页面布局
+                restorePageLayout();
             }, 300);
         }
     }
