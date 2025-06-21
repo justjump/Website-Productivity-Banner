@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UserScript 测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #555;
+        }
+        .domain-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .domain-item {
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .beneficial { background-color: #d4edda; }
+        .harmful { background-color: #f8d7da; }
+        .neutral { background-color: #d1ecf1; }
+        
+        .instructions {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .instructions ol {
+            margin: 10px 0;
+        }
+        .instructions li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 网站生产力横幅 UserScript 测试</h1>
+        
+        <div class="instructions">
+            <h3>📋 安装和测试说明</h3>
+            <ol>
+                <li>安装 <strong>Tampermonkey</strong> 或 <strong>Greasemonkey</strong> 浏览器扩展</li>
+                <li>将 <code>website-productivity-banner.user.js</code> 文件内容复制到新的用户脚本中</li>
+                <li>保存并启用脚本</li>
+                <li>访问下面列出的测试网站，观察横幅显示效果</li>
+                <li>测试关闭按钮和自动隐藏功能</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h3>✅ 有益网站测试 (应显示绿色横幅)</h3>
+            <div class="domain-list">
+                <div class="domain-item beneficial">github.com</div>
+                <div class="domain-item beneficial">stackoverflow.com</div>
+                <div class="domain-item beneficial">coursera.org</div>
+                <div class="domain-item beneficial">zhihu.com</div>
+                <div class="domain-item beneficial">csdn.net</div>
+                <div class="domain-item beneficial">linkedin.com</div>
+                <div class="domain-item beneficial">investopedia.com</div>
+                <div class="domain-item beneficial">freecodecamp.org</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>⚠️ 有害网站测试 (应显示红色横幅)</h3>
+            <div class="domain-list">
+                <div class="domain-item harmful">youtube.com</div>
+                <div class="domain-item harmful">facebook.com</div>
+                <div class="domain-item harmful">instagram.com</div>
+                <div class="domain-item harmful">tiktok.com</div>
+                <div class="domain-item harmful">bilibili.com</div>
+                <div class="domain-item harmful">weibo.com</div>
+                <div class="domain-item harmful">netflix.com</div>
+                <div class="domain-item harmful">taobao.com</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>ℹ️ 中性网站测试 (不应显示横幅)</h3>
+            <div class="domain-list">
+                <div class="domain-item neutral">google.com</div>
+                <div class="domain-item neutral">baidu.com</div>
+                <div class="domain-item neutral">wikipedia.org</div>
+                <div class="domain-item neutral">microsoft.com</div>
+                <div class="domain-item neutral">apple.com</div>
+                <div class="domain-item neutral">amazon.com (工具类使用)</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 功能测试清单</h3>
+            <ul>
+                <li>✅ 横幅在页面顶部正确显示</li>
+                <li>✅ 横幅颜色根据网站类型正确显示（绿色/红色）</li>
+                <li>✅ 横幅文字内容正确</li>
+                <li>✅ 关闭按钮功能正常</li>
+                <li>✅ 5秒后自动隐藏</li>
+                <li>✅ 页面内容不被横幅遮挡</li>
+                <li>✅ 同一会话中关闭后不再显示</li>
+                <li>✅ iframe 中不显示横幅</li>
+                <li>✅ 控制台输出调试信息</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>🐛 常见问题排查</h3>
+            <ul>
+                <li><strong>横幅不显示：</strong> 检查脚本是否正确安装和启用</li>
+                <li><strong>样式异常：</strong> 检查网站是否有CSS冲突</li>
+                <li><strong>分类错误：</strong> 检查域名匹配逻辑</li>
+                <li><strong>性能问题：</strong> 检查控制台是否有错误信息</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 模拟不同域名进行测试
+        console.log('当前测试页面域名:', window.location.hostname);
+        console.log('UserScript 应该将此页面识别为中性网站（不显示横幅）');
+    </script>
+</body>
+</html>
