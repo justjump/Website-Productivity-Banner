@@ -415,12 +415,12 @@
         if (config.showChoices) {
             actionButtons = `
                 <div class="action-buttons">
-                    <button class="action-btn beneficial" data-choice="beneficial" title="标记为有益网站">✓</button>
-                    <button class="action-btn harmful" data-choice="harmful" title="标记为有害网站">✗</button>
+                    <button class="action-btn beneficial" data-choice="beneficial" title="标记为有益网站">👍</button>
+                    <button class="action-btn harmful" data-choice="harmful" title="标记为有害网站">👎</button>
                 </div>
             `;
         } else if (config.showAdjust) {
-            const adjustIcon = config.category === 'beneficial' ? '✗' : '✓';
+            const adjustIcon = config.category === 'beneficial' ? '👎' : '👍';
             const adjustTitle = config.category === 'beneficial' ? '改为有害网站' : '改为有益网站';
             const adjustChoice = config.category === 'beneficial' ? 'harmful' : 'beneficial';
             const adjustClass = config.category === 'beneficial' ? 'harmful' : 'beneficial';
