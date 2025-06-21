@@ -222,7 +222,23 @@
         // 延迟显示动画
         setTimeout(() => {
             banner.classList.add('show');
+            // 滚动到页面顶部，确保用户能看到横幅
+            scrollToTop();
         }, 100);
+    }
+
+    // 平滑滚动到页面顶部
+    function scrollToTop() {
+        // 检查当前滚动位置，如果已经在顶部附近就不滚动
+        if (window.pageYOffset <= 100) {
+            return;
+        }
+
+        // 使用平滑滚动
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
     }
 
     // 隐藏横幅
