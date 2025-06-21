@@ -8,11 +8,11 @@
 // @match        *://*/*
 // @grant        none
 // @run-at       document-end
-// @namespace    https://github.com/justjump/website-productivity-banner
-// @homepage     https://github.com/justjump/website-productivity-banner
-// @supportURL   https://github.com/justjump/website-productivity-banner/issues
-// @updateURL    https://raw.githubusercontent.com/justjump/website-productivity-banner/main/website-productivity-banner.user.js
-// @downloadURL  https://raw.githubusercontent.com/justjump/website-productivity-banner/main/website-productivity-banner.user.js
+// @namespace    https://github.com/justjump/Website-Productivity-Banner
+// @homepage     https://github.com/justjump/Website-Productivity-Banner
+// @supportURL   https://github.com/justjump/Website-Productivity-Banner/issues
+// @updateURL    https://raw.githubusercontent.com/justjump/Website-Productivity-Banner/main/website-productivity-banner.user.js
+// @downloadURL  https://raw.githubusercontent.com/justjump/Website-Productivity-Banner/main/website-productivity-banner.user.js
 // ==/UserScript==
 
 (function() {
