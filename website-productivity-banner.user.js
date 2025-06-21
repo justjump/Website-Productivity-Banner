@@ -270,92 +270,85 @@
             #productivity-banner .banner-content {
                 display: flex;
                 align-items: center;
-                justify-content: center;
+                justify-content: space-between;
                 width: 100%;
                 position: relative;
-                padding: 0 60px;
+                padding: 0 15px;
             }
 
             #productivity-banner .banner-text {
                 text-align: center;
                 flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
             }
 
             #productivity-banner .time-display {
                 font-size: 12px;
                 opacity: 0.9;
-                margin-left: 10px;
                 background: rgba(255,255,255,0.1);
                 padding: 2px 8px;
                 border-radius: 10px;
             }
 
-            #productivity-banner .choice-buttons {
+            #productivity-banner .action-buttons {
                 display: flex;
-                gap: 10px;
-                margin-top: 8px;
+                align-items: center;
+                gap: 8px;
             }
 
-            #productivity-banner .choice-btn {
+            #productivity-banner .action-btn {
                 background: rgba(255,255,255,0.2);
                 border: 1px solid rgba(255,255,255,0.3);
-                border-radius: 15px;
+                border-radius: 50%;
                 color: inherit;
-                font-size: 12px;
-                font-weight: 500;
+                font-size: 14px;
+                font-weight: bold;
                 cursor: pointer;
-                padding: 6px 12px;
+                padding: 0;
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 transition: all 0.2s ease;
-                min-width: 60px;
             }
 
-            #productivity-banner .choice-btn:hover {
+            #productivity-banner .action-btn:hover {
                 background: rgba(255,255,255,0.3);
                 border-color: rgba(255,255,255,0.5);
-                transform: translateY(-1px);
             }
 
-            #productivity-banner .choice-btn:active {
-                transform: translateY(0);
+            #productivity-banner .action-btn:active {
+                background: rgba(255,255,255,0.4);
             }
 
-            #productivity-banner .choice-btn.beneficial {
-                background: rgba(76, 175, 80, 0.8);
+            #productivity-banner .action-btn.beneficial {
+                background: rgba(76, 175, 80, 0.7);
                 border-color: rgba(76, 175, 80, 1);
             }
 
-            #productivity-banner .choice-btn.harmful {
-                background: rgba(244, 67, 54, 0.8);
+            #productivity-banner .action-btn.beneficial:hover {
+                background: rgba(76, 175, 80, 0.9);
+            }
+
+            #productivity-banner .action-btn.harmful {
+                background: rgba(244, 67, 54, 0.7);
                 border-color: rgba(244, 67, 54, 1);
             }
 
-            #productivity-banner .adjust-btn {
-                background: rgba(255,255,255,0.1);
-                border: 1px solid rgba(255,255,255,0.2);
-                border-radius: 12px;
-                color: inherit;
-                font-size: 11px;
-                cursor: pointer;
-                padding: 3px 8px;
-                margin-left: 8px;
-                transition: all 0.2s ease;
+            #productivity-banner .action-btn.harmful:hover {
+                background: rgba(244, 67, 54, 0.9);
+            }
+
+            #productivity-banner .action-btn.adjust {
                 opacity: 0.7;
             }
 
-            #productivity-banner .adjust-btn:hover {
-                background: rgba(255,255,255,0.2);
-                border-color: rgba(255,255,255,0.3);
+            #productivity-banner .action-btn.adjust:hover {
                 opacity: 1;
-            }
-
-            #productivity-banner.beneficial .adjust-btn {
-                background: rgba(244, 67, 54, 0.6);
-                border-color: rgba(244, 67, 54, 0.8);
-            }
-
-            #productivity-banner.harmful .adjust-btn {
-                background: rgba(76, 175, 80, 0.6);
-                border-color: rgba(76, 175, 80, 0.8);
             }
             
             #productivity-banner.show {
@@ -413,21 +406,24 @@
             timeDisplay = '<span class="time-display" id="activity-time">活动时间: 0秒</span>';
         }
 
-        let choiceButtons = '';
+        let actionButtons = '';
         if (config.showChoices) {
-            choiceButtons = `
-                <div class="choice-buttons">
-                    <button class="choice-btn beneficial" data-choice="beneficial">✅ 有益</button>
-                    <button class="choice-btn harmful" data-choice="harmful">⚠️ 有害</button>
+            actionButtons = `
+                <div class="action-buttons">
+                    <button class="action-btn beneficial" data-choice="beneficial" title="标记为有益网站">✓</button>
+                    <button class="action-btn harmful" data-choice="harmful" title="标记为有害网站">✗</button>
                 </div>
             `;
-        }
-
-        let adjustButton = '';
-        if (config.showAdjust) {
-            const adjustText = config.category === 'beneficial' ? '标记为有害' : '标记为有益';
+        } else if (config.showAdjust) {
+            const adjustIcon = config.category === 'beneficial' ? '✗' : '✓';
+            const adjustTitle = config.category === 'beneficial' ? '改为有害网站' : '改为有益网站';
             const adjustChoice = config.category === 'beneficial' ? 'harmful' : 'beneficial';
-            adjustButton = `<button class="adjust-btn" data-adjust="${adjustChoice}">${adjustText}</button>`;
+            const adjustClass = config.category === 'beneficial' ? 'harmful' : 'beneficial';
+            actionButtons = `
+                <div class="action-buttons">
+                    <button class="action-btn adjust ${adjustClass}" data-adjust="${adjustChoice}" title="${adjustTitle}">${adjustIcon}</button>
+                </div>
+            `;
         }
 
         banner.innerHTML = `
@@ -435,11 +431,10 @@
                 <div class="banner-text">
                     ${config.text}
                     ${timeDisplay}
-                    ${adjustButton}
-                    ${choiceButtons}
                 </div>
+                ${actionButtons}
+                <button class="close-btn" title="关闭横幅" aria-label="关闭横幅">×</button>
             </div>
-            <button class="close-btn" title="关闭横幅" aria-label="关闭横幅">×</button>
         `;
 
         return banner;
@@ -480,25 +475,17 @@
             hideBanner(true); // 标记为用户主动关闭
         });
 
-        // 添加选择按钮事件（如果存在）
-        const choiceButtons = banner.querySelectorAll('.choice-btn');
-        choiceButtons.forEach(btn => {
+        // 添加动作按钮事件（选择和调整）
+        const actionButtons = banner.querySelectorAll('.action-btn');
+        actionButtons.forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
-                const choice = this.getAttribute('data-choice');
-                handleUserChoice(currentDomain, choice);
+                const choice = this.getAttribute('data-choice') || this.getAttribute('data-adjust');
+                if (choice) {
+                    handleUserChoice(currentDomain, choice);
+                }
             });
         });
-
-        // 添加调整按钮事件（如果存在）
-        const adjustBtn = banner.querySelector('.adjust-btn');
-        if (adjustBtn) {
-            adjustBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const newChoice = this.getAttribute('data-adjust');
-                handleUserChoice(currentDomain, newChoice);
-            });
-        }
 
         // 添加到页面
         document.body.appendChild(banner);
