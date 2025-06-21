@@ -134,39 +134,44 @@
                 justify-content: center;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 font-size: 14px;
-                font-weight: 500;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                font-weight: 600;
+                box-shadow: 0 2px 15px rgba(0,0,0,0.15);
                 transform: translateY(-100%);
                 transition: transform 0.3s ease-in-out;
-                cursor: pointer;
+                border-bottom: 2px solid rgba(255,255,255,0.2);
             }
             
             #productivity-banner.show {
                 transform: translateY(0);
             }
             
-            #productivity-banner:hover {
-                opacity: 0.9;
-            }
-            
             #productivity-banner .close-btn {
                 position: absolute;
                 right: 15px;
-                background: none;
-                border: none;
+                background: rgba(255, 255, 255, 0.2);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
                 color: inherit;
-                font-size: 18px;
+                font-size: 16px;
+                font-weight: bold;
                 cursor: pointer;
                 padding: 0;
-                width: 20px;
-                height: 20px;
+                width: 24px;
+                height: 24px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                transition: all 0.2s ease;
             }
-            
+
             #productivity-banner .close-btn:hover {
-                opacity: 0.7;
+                background: rgba(255, 255, 255, 0.3);
+                border-color: rgba(255, 255, 255, 0.5);
+                transform: scale(1.1);
+            }
+
+            #productivity-banner .close-btn:active {
+                transform: scale(0.95);
             }
             
             /* 为页面内容添加顶部边距，避免被横幅遮挡 */
@@ -187,7 +192,7 @@
 
         banner.innerHTML = `
             <span>${config.text}</span>
-            <button class="close-btn" title="关闭横幅">×</button>
+            <button class="close-btn" title="关闭横幅" aria-label="关闭横幅">×</button>
         `;
 
         return banner;
@@ -218,13 +223,6 @@
         setTimeout(() => {
             banner.classList.add('show');
         }, 100);
-
-        // 5秒后自动隐藏（可选）
-        setTimeout(() => {
-            if (document.getElementById('productivity-banner')) {
-                hideBanner();
-            }
-        }, 5000);
     }
 
     // 隐藏横幅
