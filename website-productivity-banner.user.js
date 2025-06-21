@@ -217,14 +217,18 @@
                 backgroundColor: '#4CAF50',
                 textColor: '#ffffff',
                 icon: '✅',
-                showTime: true
+                showTime: true,
+                showAdjust: true,
+                category: 'beneficial'
             },
             harmful: {
                 text: '⚠️ 有害网站 - 这个网站可能浪费您的时间！',
                 backgroundColor: '#F44336',
                 textColor: '#ffffff',
                 icon: '⚠️',
-                showTime: true
+                showTime: true,
+                showAdjust: true,
+                category: 'harmful'
             },
             neutral: {
                 text: `❓ 未分类网站 - 请选择 "${domain}" 对您的赚钱目标是：`,
@@ -232,7 +236,8 @@
                 textColor: '#ffffff',
                 icon: '❓',
                 showTime: false,
-                showChoices: true
+                showChoices: true,
+                category: 'neutral'
             }
         };
 
@@ -323,6 +328,35 @@
                 background: rgba(244, 67, 54, 0.8);
                 border-color: rgba(244, 67, 54, 1);
             }
+
+            #productivity-banner .adjust-btn {
+                background: rgba(255,255,255,0.1);
+                border: 1px solid rgba(255,255,255,0.2);
+                border-radius: 12px;
+                color: inherit;
+                font-size: 11px;
+                cursor: pointer;
+                padding: 3px 8px;
+                margin-left: 8px;
+                transition: all 0.2s ease;
+                opacity: 0.7;
+            }
+
+            #productivity-banner .adjust-btn:hover {
+                background: rgba(255,255,255,0.2);
+                border-color: rgba(255,255,255,0.3);
+                opacity: 1;
+            }
+
+            #productivity-banner.beneficial .adjust-btn {
+                background: rgba(244, 67, 54, 0.6);
+                border-color: rgba(244, 67, 54, 0.8);
+            }
+
+            #productivity-banner.harmful .adjust-btn {
+                background: rgba(76, 175, 80, 0.6);
+                border-color: rgba(76, 175, 80, 0.8);
+            }
             
             #productivity-banner.show {
                 transform: translateY(0);
@@ -352,11 +386,10 @@
             #productivity-banner .close-btn:hover {
                 background: rgba(255, 255, 255, 0.3);
                 border-color: rgba(255, 255, 255, 0.5);
-                transform: scale(1.1);
             }
 
             #productivity-banner .close-btn:active {
-                transform: scale(0.95);
+                background: rgba(255, 255, 255, 0.4);
             }
             
             /* 为页面内容添加顶部边距，避免被横幅遮挡 */
@@ -390,11 +423,19 @@
             `;
         }
 
+        let adjustButton = '';
+        if (config.showAdjust) {
+            const adjustText = config.category === 'beneficial' ? '标记为有害' : '标记为有益';
+            const adjustChoice = config.category === 'beneficial' ? 'harmful' : 'beneficial';
+            adjustButton = `<button class="adjust-btn" data-adjust="${adjustChoice}">${adjustText}</button>`;
+        }
+
         banner.innerHTML = `
             <div class="banner-content">
                 <div class="banner-text">
                     ${config.text}
                     ${timeDisplay}
+                    ${adjustButton}
                     ${choiceButtons}
                 </div>
             </div>
@@ -429,6 +470,9 @@
         const config = getBannerConfig(category, currentDomain);
         const banner = createBanner(config, currentDomain);
 
+        // 为横幅添加分类class
+        banner.classList.add(category);
+
         // 添加关闭按钮事件
         const closeBtn = banner.querySelector('.close-btn');
         closeBtn.addEventListener('click', function(e) {
@@ -445,6 +489,16 @@
                 handleUserChoice(currentDomain, choice);
             });
         });
+
+        // 添加调整按钮事件（如果存在）
+        const adjustBtn = banner.querySelector('.adjust-btn');
+        if (adjustBtn) {
+            adjustBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const newChoice = this.getAttribute('data-adjust');
+                handleUserChoice(currentDomain, newChoice);
+            });
+        }
 
         // 添加到页面
         document.body.appendChild(banner);
@@ -512,10 +566,14 @@
             return true;
         }
 
-        // 检查用户是否已经关闭过横幅（使用sessionStorage）
-        const sessionKey = 'productivity-banner-closed-' + getCurrentDomain();
-        if (sessionStorage.getItem(sessionKey)) {
-            return true;
+        // 检查用户是否已经关闭过横幅（只对有益网站使用sessionStorage）
+        const domain = getCurrentDomain();
+        const category = categorizeWebsite(domain);
+        if (category === 'beneficial') {
+            const sessionKey = 'productivity-banner-closed-' + domain;
+            if (sessionStorage.getItem(sessionKey)) {
+                return true;
+            }
         }
 
         return false;
