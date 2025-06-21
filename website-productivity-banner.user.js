@@ -270,19 +270,19 @@
             #productivity-banner .banner-content {
                 display: flex;
                 align-items: center;
-                justify-content: space-between;
+                justify-content: center;
                 width: 100%;
                 position: relative;
-                padding: 0 15px;
+                padding: 0 80px 0 15px;
             }
 
             #productivity-banner .banner-text {
                 text-align: center;
-                flex: 1;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 gap: 10px;
+                width: 100%;
             }
 
             #productivity-banner .time-display {
@@ -294,6 +294,10 @@
             }
 
             #productivity-banner .action-buttons {
+                position: absolute;
+                right: 50px;
+                top: 50%;
+                transform: translateY(-50%);
                 display: flex;
                 align-items: center;
                 gap: 8px;
@@ -374,6 +378,7 @@
                 align-items: center;
                 justify-content: center;
                 transition: all 0.2s ease;
+                z-index: 10;
             }
 
             #productivity-banner .close-btn:hover {
@@ -433,8 +438,8 @@
                     ${timeDisplay}
                 </div>
                 ${actionButtons}
-                <button class="close-btn" title="关闭横幅" aria-label="关闭横幅">×</button>
             </div>
+            <button class="close-btn" title="关闭横幅" aria-label="关闭横幅">×</button>
         `;
 
         return banner;
